@@ -1,0 +1,192 @@
+\documentclass[10pt]{extarticle}
+
+\usepackage{underscore}
+\usepackage[utf8]{inputenc}
+\usepackage{longtable}
+\usepackage[margin=1in]{geometry}
+\usepackage[spanish]{babel}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+\usepackage{anysize}
+\usepackage{subfig}
+\usepackage{wrapfig}
+\usepackage{fancyhdr}
+
+\marginsize{2.5cm}{2.5cm}{3cm}{3cm}
+%\SweaveOpts{echo=false}
+\renewcommand{\baselinestretch}{1.3} % per canviar interlineado
+
+% Referencies amb vermell
+
+%----------------------------------------------------------------------------------------
+%  TITLE PAGE
+%----------------------------------------------------------------------------------------
+\newcommand*{\titleGM}{\begingroup % Create the command for including the title page in the document
+\hbox{ % Horizontal box
+\hspace*{0.2\textwidth} % Whitespace to the left of the title page
+\rule{1pt}{\textheight} % Vertical line
+\hspace*{0.05\textwidth} % Whitespace between the vertical line and title page text
+\parbox[b]{0.75\textwidth}{ % Paragraph box which restricts text to less than the width of the page
+
+{\noindent\Huge\bfseries Ejercicio: \\ Contrastes de hipotesis \\ \\ EBB}\\[2\baselineskip] % Title
+
+{\Large \textsc{Santi Pérez-Hoyos, \\ Miriam Mota, \\ Alex Sánchez }} % Author name
+
+\vspace{0.4\textheight} % Whitespace between the title block and the publisher
+%{\noindent Tutores: \\ \textsc{Alex S\'anchez \\ Juan Ram\'on Gonz\'alez}}\\[\baselineskip] % Publisher and logo
+}}
+\endgroup}
+
+
+
+%----------------------------------------------------------------------------------------
+%  BLANK DOCUMENT
+%----------------------------------------------------------------------------------------
+\begin{document}
+
+
+
+
+% http://en.wikibooks.org/wiki/LaTeX/Page_Layout
+
+\titleGM % This command includes the title page
+
+\clearpage
+
+\pagestyle{fancy} % Removes page numbers
+
+
+%----------------------------------------------------------------------------------------
+\section{Ejercicio}
+%----------------------------------------------------------------------------------------
+\textbf{Indica que tipo de análisis o que pruebas estadísticas utilizarías y si fuera necesario algún tipo de prueba adicional para llevar a cabo el análisis. Formula la hipótesis a contrastar de acuerdo con las hipótesis seleccionadas}
+\begin{enumerate}
+  \item [a.] \textbf{Se efectúa un estudio de seguimiento a 1018 sujetos atendidos en una clínica de obesidad. Se mide el Indice de Masa Corporal(IMC) y el perfil lipídico. Al cabo de 12 meses se evalúa de nuevo el IMC y el colesterol estando interesados en cuantificar la disminución de ambos parámetros}\\
+  
+  Disponemos de dos variables cuantitativas medidas en dos momentos distintos. Se quiere analizar si los valores pre y post sufren algun cambio, para ello debemos: en primer lugar evaluar la normalidad de las variables. En caso de que se ajusten a una distribución normal, miramos la homegeneidad de las variables y realizamos un test t de Student para muestras apareadas. En el caso de que no sigan una distribución normal, realizaremos el test no paramétrico de wilcoxon para muestras apareadas. 
+
+  \item [b.] \textbf{Se analizan un grupo de variables inmunológica(leucocitos totales, linfocitos B, natural Killer, etc) en una muestra de 102 hombres y 147 mujeres mayores de 65 años. Se está interesado en ver la existencia de diferencias por sexo.}\\
+  
+  Disponemos de distintas variables cuantitativas (leucocitos,linfocitos, etc. ) y una variable cualitativa, sexo. Queremos ver si existen diferencias de las variables cuantitativas según el sexo, para ello debemos: en primer lugar evaluar la normalidad de las variables. En caso de que se ajusten a una distribución normal, miramos la homegeneidad de las variables y realizamos un test t de Student. En el caso de que no sigan una distribución normal, realizaremos el test no paramétrico U de Mann-Whitnney. 
+
+  \item [c.] \textbf{La supervivencia de los pacientes con cardiopatía isquémica se asocia al valor de la fracción de eyección(FE). Se desea comparar los resultados obtenidos en 125 pacientes mediante la fracción de eyección isotópica en la asignación de sujetos a grupos de alto y bajo riesgo con la asignación obtenida a partir de la FE angiográfica. Plantea el análisis.}\\
+
+Disponemos de dos variables cualitativas, queremos ver si existe relación entre el riesgo y la clasificacio según FE angiográfica, para ello debemos: en primer lugar realizamos una tabla de frecuencias, en el caso de obtener en alguna celda un valor inferior a 0.05 realizamos un test exacto de Fisher, en caso contrario un test Chi Cuadrado. 
+
+\end{enumerate}
+
+
+%----------------------------------------------------------------------------------------
+\section{Ejercicio Práctico}
+%----------------------------------------------------------------------------------------
+\textbf{Este ejercicio consta de diversas partes en un intento de simular lo que se lleva a cabo en un estudio real. Se ha simplificado para hacerlo más practicable por lo que no hace falta que os agobiéis si algo no os cuadre del todo. De lo que se trata es que veamos como aplicar las distintas técnicas que hemos estudiado, de forma integral, en un problema de análisis de datos.}
+
+\subsection{Los datos}
+\textbf{La demora entre el comienzo de los síntomas y el ingreso hospitalario es un factor que determina la mortalidad del infarto agudo de miocardio (IAM). Se estudian 426 sujetos que acuden al servicio de urgencias de 5 hospitales por dolor torácico , recogiendo el tiempo entre los primeros síntomas y la llegada al hospital y una serie de variables sociodemográficas. Se está interesado en estimar el retraso prehospitalario y determinar las variables asociadas. Los datos los podéis encontrar en los ficheros de Stata demora.dta, de Excel demora.xls y de texto plano separado por comas demora.csv}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.851\textwidth, height=0.3\textheight]{Selection240.png}\\
+\end{figure}
+
+<<>>=
+dat <- read.csv("demora.csv")
+dat$noche <- factor(dat$noche, 0:1, c("Dia", "Noche"))
+dat$noche <- relevel(dat$noche,ref = "Noche")
+@
+
+
+
+
+\newpage
+\subsection{Los análisis}
+
+\begin{enumerate}
+  \item [a)] \textbf{Se está interesado en conocer la relación entre la demora y la aparición nocturna del síntoma.}
+    \begin{itemize}
+      \item \textbf{Comprueba la normalidad de la variable}\\
+Realizamos gráficos y test de normalidad shapiro Wilks.
+<<fig.height=4,fig.width=4>>=
+qqnorm(dat$demora)
+qqline(dat$demora)
+
+shapiro.test(dat$demora)
+@
+      
+Con un p-valor inferior a 0.05 concluimos que los datos no se ajustan a una distribución normal. 
+      
+      \item \textbf{Indica el procedimiento de análisis.}\\
+      En primer lugar, debemos realizar un análisis gráfico. \\
+      
+      Dado que los datos no se ajustan a una distribución normal, las pruebas que usemos deberan ser no paramétricas. 
+      
+      
+      \item \textbf{Aunque no sea el método más adecuado realiza el contraste paramétrico para contrastar la existencia de relación. Interpreta los resultados}
+      
+<<>>=
+
+t.test(dat$demora ~ dat$noche)
+@
+  Con un p-valor inferior a 0.05 rechazamos la hipotesis nula de igualdad de medias. Concluimos que se aprecian diferencia entre los tiempos al acudir al hospital entre los paciente a los que les sucede en eventos de dia o de noche.\\
+  
+  A esta misma conlusión podemos llegar si observamos el intervalo de confianza, ya que, no incluye el 0. 
+  
+  
+      
+      
+      \item \textbf{Aunque no sea el método más adecuado realiza el contraste no paramétrico para contrastar la existencia de relación. Interpreta los resultados}\\
+      
+<<>>=
+wilcox.test(dat$demora ~ dat$noche)
+@
+    
+    Con un p-valor inferior a 0.05, rechazamos la hipotésis nula. Tenemos evidencias estadísticas en que hay diferencia en el tiempo de demora al hospital para los distintos grupos (dia-noche)  
+    
+    
+      \item \textbf{Justifica cual es la mejor opción de las efectuadas anteriormente}\\
+      De forma teórica (y basandonos en no normalidad) escogeriamos el test U de Mann-Withney. Usemos el test paramétrico o no paramétrico llegamos a la misma conclusión. 
+    \end{itemize}
+
+  \item [b)] \textbf{Se cree que a un 20\% de los pacientes les aparecen los síntomas por la noche. Comprueba dicha hipotesis. Que conclusión se obtiene?}
+  
+  Realizamos un test de proporciones para una muestra. Con un p-valor inferior a 0.05 rechazamos que al 20\% de los pacientes les aparezcan los síntomas por la noche. 
+<<>>=
+prop.test(table(dat$noche),p = .2)
+@
+  
+  
+  \item [c)] \textbf{Se esta interesado en estudiar la relación entre el nivel de dolor y la aparición nocturna de los sintomas. }
+  \begin{itemize}
+    \item \textbf{Indica el procedimiento de análisis.}
+    Realizamos una tabla de frecuencias para ver como se distribuyen los datos y si en alguna de las celdas tenemos un valor inferior a 5, si es así realizamos un test exacto de Fisher, en caso contrario un test chi cuadrado para evaluar independencia entre variables.
+    \item \textbf{Ejecuta dicho análisis e interpreta los resultados.}
+<<>>=
+gmodels::CrossTable(dat$dolor, dat$noche, prop.c = F,prop.r = F,chisq = F,prop.chisq = F)
+@
+    Como ningun valor de la tabla es inferior a 5 realizamos un test chi-cuadrado. 
+<<>>=
+chisq.test(table(dat$dolor, dat$noche))
+@
+    Con los resultados del test, p.valor superior a 0.05, no podemos rechazar la hipotesis nula,consideramos que noche y dolor son independientes.
+  \end{itemize}
+    
+
+\end{enumerate}
+
+
+% \begin{figure}[ht]
+% \centering
+% \subfloat{\includegraphics[width=0.71\textwidth, height=0.3\textheight]{results/Selection229.png}}\\
+% \subfloat{\includegraphics[width=0.71\textwidth, height=0.3\textheight]{results/Selection230.png}} % \newline 
+% \caption{Ejercicio 1}
+% \label {descr}
+% \end{figure}
+% \clearpage
+
+
+
+
+
+
+\end{document}
